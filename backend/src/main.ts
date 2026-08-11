@@ -14,31 +14,17 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const corsOriginEnv = process.env.CORS_ORIGIN;
-const allowedOrigins = corsOriginEnv
-  ? corsOriginEnv.split(',').map((o) => o.trim().replace(/\/+$/, ''))
-  : ['http://localhost:5173', 'http://localhost:8080'];
+
+// Parse CORS_ORIGIN, strip any trailing slashes, and support comma-separated origins
+const rawCorsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+const corsOrigin = rawCorsOrigin.includes(',')
+  ? rawCorsOrigin.split(',').map((o) => o.trim().replace(/\/+$/, ''))
+  : rawCorsOrigin.trim().replace(/\/+$/, '');
 
 app.use(helmet());
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Normalize incoming origin by removing trailing slashes if present
-      const cleanOrigin = origin ? origin.replace(/\/+$/, '') : '';
-
-      if (
-        !origin ||
-        !corsOriginEnv ||
-        corsOriginEnv === '*' ||
-        allowedOrigins.includes(cleanOrigin) ||
-        cleanOrigin.endsWith('.vercel.app')
-      ) {
-        // Return the exact requesting origin (without trailing slash) to satisfy browser CORS
-        callback(null, origin || true);
-      } else {
-        callback(null, origin || true);
-      }
-    },
+    origin: corsOrigin,
     credentials: true,
   })
 );
