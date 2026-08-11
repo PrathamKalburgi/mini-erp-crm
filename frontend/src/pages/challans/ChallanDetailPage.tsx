@@ -3,7 +3,7 @@ import {
   Card, Descriptions, Button, Space, Tag, Table, Typography,
   message, Spin, Alert, Row, Col, Popconfirm,
 } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, EditOutlined, CheckCircleOutlined, CloseCircleOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { SalesChallan, SalesChallanItem } from '../../types';
 import { ChallanStatus, UserRole } from '../../types';
@@ -29,6 +29,7 @@ const ChallanDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
   const challanId = Number(id);
@@ -50,6 +51,18 @@ const ChallanDetailPage: React.FC = () => {
   }, [challanId]);
 
   useEffect(() => { fetchChallan(); }, [fetchChallan]);
+
+  const handleDownloadPdf = async () => {
+    setDownloadingPdf(true);
+    try {
+      await challanService.downloadChallanPdf(challanId);
+      message.success('PDF download started');
+    } catch (err) {
+      message.error('Failed to download PDF invoice');
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
 
   const handleConfirm = async () => {
     setApiError(null);
@@ -128,29 +141,30 @@ const ChallanDetailPage: React.FC = () => {
                 <Tag color={STATUS_COLORS[challan.status]}>{challan.status}</Tag>
               </Space>
             </Col>
-            {canWrite && (
-              <Col>
-                <Space>
-                  {isDraft && (
-                    <>
-                      <Button icon={<EditOutlined />} onClick={() => navigate(`/challans/${challan.id}/edit`)}>
-                        Edit Draft
+            <Col>
+              <Space>
+                <Button icon={<FilePdfOutlined />} loading={downloadingPdf} onClick={handleDownloadPdf}>
+                  Download PDF
+                </Button>
+                {canWrite && isDraft && (
+                  <>
+                    <Button icon={<EditOutlined />} onClick={() => navigate(`/challans/${challan.id}/edit`)}>
+                      Edit Draft
+                    </Button>
+                    <Popconfirm title="Confirm this challan? Stock will be deducted." onConfirm={handleConfirm} okText="Yes, Confirm" cancelText="No">
+                      <Button type="primary" icon={<CheckCircleOutlined />} loading={actionLoading}>
+                        Confirm
                       </Button>
-                      <Popconfirm title="Confirm this challan? Stock will be deducted." onConfirm={handleConfirm} okText="Yes, Confirm" cancelText="No">
-                        <Button type="primary" icon={<CheckCircleOutlined />} loading={actionLoading}>
-                          Confirm
-                        </Button>
-                      </Popconfirm>
-                      <Popconfirm title="Cancel this challan?" onConfirm={handleCancel} okText="Yes, Cancel" cancelText="No" okButtonProps={{ danger: true }}>
-                        <Button danger icon={<CloseCircleOutlined />} loading={actionLoading}>
-                          Cancel
-                        </Button>
-                      </Popconfirm>
-                    </>
-                  )}
-                </Space>
-              </Col>
-            )}
+                    </Popconfirm>
+                    <Popconfirm title="Cancel this challan?" onConfirm={handleCancel} okText="Yes, Cancel" cancelText="No" okButtonProps={{ danger: true }}>
+                      <Button danger icon={<CloseCircleOutlined />} loading={actionLoading}>
+                        Cancel
+                      </Button>
+                    </Popconfirm>
+                  </>
+                )}
+              </Space>
+            </Col>
           </Row>
         }
       >

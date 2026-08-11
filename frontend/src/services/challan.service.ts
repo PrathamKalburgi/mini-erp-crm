@@ -11,6 +11,21 @@ export async function getChallanById(id: number): Promise<SalesChallan> {
   return response.data.data;
 }
 
+export async function downloadChallanPdf(id: number): Promise<void> {
+  const response = await apiClient.get(`/challans/${id}/pdf`, {
+    responseType: 'blob',
+  });
+  const blob = new Blob([response.data], { type: 'application/pdf' });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', `challan-${id}.pdf`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}
+
 export async function createChallan(data: { customer_id: number; items: Array<{ product_id: number; quantity: number }> }): Promise<SalesChallan> {
   const response = await apiClient.post<SingleResponse<SalesChallan>>('/challans', data);
   return response.data.data;

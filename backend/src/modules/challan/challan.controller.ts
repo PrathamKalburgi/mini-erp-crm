@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { challanService } from './challan.service';
+import { generateChallanPdf } from './pdf.service';
 import { CreateChallanSchema, UpdateChallanSchema } from './challan.dto';
 import { BadRequestError } from '../../utils/errors';
 
@@ -40,6 +41,19 @@ export class ChallanController {
       const challanId = parseChallanId(req.params.id);
       const challan = await challanService.getChallanById(challanId);
       res.status(200).json({ data: challan });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  public async exportPdf(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const challanId = parseChallanId(req.params.id);
+      const pdfBuffer = await generateChallanPdf(challanId);
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="challan-${challanId}.pdf"`);
+      res.status(200).send(pdfBuffer);
     } catch (error) {
       next(error);
     }

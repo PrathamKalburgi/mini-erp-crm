@@ -22,6 +22,13 @@ challanRouter.post(
   (req, res, next) => challanController.createChallan(req, res, next)
 );
 
+// GET /challans/:id/pdf (Bonus 2: Read/Download PDF: All roles)
+challanRouter.get(
+  '/:id/pdf',
+  authorize(UserRole.ADMIN, UserRole.SALES, UserRole.WAREHOUSE, UserRole.ACCOUNTS),
+  (req, res, next) => challanController.exportPdf(req, res, next)
+);
+
 // GET /challans/:id (Read: All roles)
 challanRouter.get(
   '/:id',
