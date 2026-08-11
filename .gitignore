@@ -28,8 +28,11 @@ Thumbs.db
 .agent/
 skills-lock.json
 
-# Initial specification markdown files and docs folder
+# Internal specification files and docs folder
 ARCHITECTURE.md
 CONTRACTS.md
 IMPLEMENTATION_PLAN.md
-docs/
+docs/*
+!docs/postman_collection.json
+!docs/openapi.json
+!docs/API_DOCUMENTATION.md

@@ -1,0 +1,235 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "FundsRoom Mini ERP & CRM API",
+    "description": "API specification for FundsRoom Mini ERP Operations Portal covering Auth, Customer CRM, Product & Inventory Management, and Sales Challans.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "UserRole": {
+        "type": "string",
+        "enum": ["ADMIN", "SALES", "WAREHOUSE", "ACCOUNTS"]
+      },
+      "CustomerType": {
+        "type": "string",
+        "enum": ["RETAIL", "WHOLESALE", "DISTRIBUTOR"]
+      },
+      "CustomerStatus": {
+        "type": "string",
+        "enum": ["LEAD", "ACTIVE", "INACTIVE"]
+      },
+      "ChallanStatus": {
+        "type": "string",
+        "enum": ["DRAFT", "CONFIRMED", "CANCELLED"]
+      },
+      "StockMovementType": {
+        "type": "string",
+        "enum": ["IN", "OUT"]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "email": { "type": "string", "format": "email" },
+          "role": { "$ref": "#/components/schemas/UserRole" }
+        }
+      },
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "customer_name": { "type": "string" },
+          "mobile_number": { "type": "string" },
+          "email": { "type": "string" },
+          "business_name": { "type": "string" },
+          "gst_number": { "type": "string", "nullable": true },
+          "customer_type": { "$ref": "#/components/schemas/CustomerType" },
+          "address": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/CustomerStatus" },
+          "follow_up_date": { "type": "string", "format": "date" },
+          "notes": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "product_name": { "type": "string" },
+          "sku": { "type": "string" },
+          "category": { "type": "string" },
+          "unit_price": { "type": "number" },
+          "current_stock": { "type": "integer" },
+          "minimum_stock_alert_quantity": { "type": "integer" },
+          "warehouse_location": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "SalesChallan": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "challan_number": { "type": "string" },
+          "customer_id": { "type": "integer" },
+          "total_quantity": { "type": "integer" },
+          "status": { "$ref": "#/components/schemas/ChallanStatus" },
+          "created_by_user_id": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": { "type": "integer" },
+          "page_size": { "type": "integer" },
+          "total_items": { "type": "integer" },
+          "total_pages": { "type": "integer" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string" },
+              "message": { "type": "string" },
+              "details": {
+                "type": "array",
+                "items": { "type": "object" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Authenticate user",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login successful" },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "summary": "Get authenticated user profile",
+        "tags": ["Auth"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Current user object" },
+          "401": { "description": "Unauthenticated" }
+        }
+      }
+    },
+    "/customers": {
+      "get": {
+        "summary": "List customers",
+        "tags": ["Customers"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer" } },
+          { "name": "page_size", "in": "query", "schema": { "type": "integer" } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "status", "in": "query", "schema": { "$ref": "#/components/schemas/CustomerStatus" } },
+          { "name": "customer_type", "in": "query", "schema": { "$ref": "#/components/schemas/CustomerType" } }
+        ],
+        "responses": {
+          "200": { "description": "Paginated list of customers" }
+        }
+      },
+      "post": {
+        "summary": "Create customer",
+        "tags": ["Customers"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "201": { "description": "Customer created" },
+          "403": { "description": "Forbidden for WAREHOUSE and ACCOUNTS" }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "summary": "List products",
+        "tags": ["Products"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Paginated product catalog" } }
+      },
+      "post": {
+        "summary": "Create product (current_stock must equal 0)",
+        "tags": ["Products"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "201": { "description": "Product created" } }
+      }
+    },
+    "/products/{id}": {
+      "patch": {
+        "summary": "Update product / adjust stock",
+        "tags": ["Products"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Updated product" } }
+      }
+    },
+    "/challans": {
+      "get": {
+        "summary": "List sales challans",
+        "tags": ["Challans"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Paginated challan summaries" } }
+      },
+      "post": {
+        "summary": "Create draft challan",
+        "tags": ["Challans"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "201": { "description": "Draft sales challan created" } }
+      }
+    },
+    "/challans/{id}/confirm": {
+      "post": {
+        "summary": "Confirm challan & deduct stock",
+        "tags": ["Challans"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Challan confirmed" },
+          "409": { "description": "Insufficient stock or invalid state" }
+        }
+      }
+    }
+  }
+}
