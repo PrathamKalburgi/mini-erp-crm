@@ -161,10 +161,10 @@ All REST endpoints adhere strictly to the canonical response envelopes:
 | `GET` | `/auth/me` | Authenticated | Retrieve current user profile |
 | `GET` | `/health` | Public | Server & infrastructure health check |
 | `GET` | `/customers` | All Roles | Search & paginate customers |
-| `POST` | `/customers` | Admin, Sales, Warehouse | Create customer profile |
+| `POST` | `/customers` | Admin, Sales | Create customer profile |
 | `GET` | `/customers/:id` | All Roles | Get customer details by ID |
-| `PATCH` | `/customers/:id` | Admin, Sales, Warehouse | Update customer profile |
-| `POST` | `/customers/:id/follow-up-notes` | Admin, Sales, Warehouse | Add follow-up note to customer timeline |
+| `PATCH` | `/customers/:id` | Admin, Sales | Update customer profile |
+| `POST` | `/customers/:id/follow-up-notes` | Admin, Sales | Add follow-up note to customer timeline |
 | `GET` | `/customers/:id/follow-up-notes` | All Roles | Get customer follow-up history |
 | `GET` | `/products` | All Roles | Search & paginate product catalog |
 | `POST` | `/products` | Admin, Warehouse | Create product entry |
@@ -174,6 +174,7 @@ All REST endpoints adhere strictly to the canonical response envelopes:
 | `GET` | `/challans` | All Roles | List sales challans |
 | `POST` | `/challans` | Admin, Sales | Create draft sales challan |
 | `GET` | `/challans/:id` | All Roles | Get sales challan details & line items |
+| `GET` | `/challans/:id/pdf` | All Roles | Export sales challan invoice PDF (Bonus 2) |
 | `PATCH` | `/challans/:id` | Admin, Sales | Edit draft sales challan |
 | `POST` | `/challans/:id/confirm` | Admin, Sales | Confirm challan & deduct stock atomically |
 | `POST` | `/challans/:id/cancel` | Admin, Sales | Cancel draft sales challan |
@@ -201,7 +202,7 @@ flowchart LR
    - Connect repository branch to Render Web Service.
    - **Environment Variables**: Set `DATABASE_URL` (Supabase connection string), `JWT_SECRET`, `CORS_ORIGIN` (Vercel URL), `NODE_ENV=production`.
    - **Build Command**: `cd backend && npm ci && npx prisma generate && npm run build`
-   - **Start Command**: `cd backend && npx prisma migrate deploy && npx prisma db seed && node dist/main.js`
+   - **Start Command**: `cd backend && node dist/main.js`
 
 3. **Frontend SPA (Vercel)**:
    - Connect repository root to Vercel project.
@@ -220,14 +221,14 @@ Both backend and frontend feature automated test suites powered by Vitest:
 cd backend
 npm run test
 ```
-*Executes all 5 backend test suites (26 tests total covering Auth, RBAC, CRM, Inventory Adjustments, Challan Confirmation, and Transaction Rollbacks).*
+*Executes all 6 backend test suites (29 tests total covering Auth, RBAC, CRM, Inventory Adjustments, Challan Confirmation, PDF Export, and Transaction Rollbacks).*
 
 ### Run Frontend Component Tests
 ```bash
 cd frontend
 npm run test
 ```
-*Executes frontend component and route guard unit tests.*
+*Executes frontend component, context, and route guard unit tests (9 tests total).*
 
 ---
 
