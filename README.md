@@ -211,15 +211,6 @@ flowchart LR
 
 ---
 
-## ⚡ Operational Note: Render Free-Tier Cold Starts
-
-When hosted on Render's free tier, backend instances spin down after 15 minutes of inactivity:
-- The **first request** after an idle period may take **50–70 seconds** while Render spins up the Node.js container.
-- Subsequent requests respond instantly (<100ms).
-- The frontend client Axios instance is configured with a 90-second timeout to handle cold-start container wake-ups seamlessly without user-facing connection timeout errors.
-
----
-
 ## 🧪 Testing & Verification
 
 Both backend and frontend feature automated test suites powered by Vitest:
