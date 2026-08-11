@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import authRouter from './modules/auth/auth.router';
 import { errorHandler } from './middleware/error.middleware';
 import { NotFoundError } from './utils/errors';
 
@@ -27,6 +28,9 @@ app.get('/health', (_req, res) => {
     service: 'api',
   });
 });
+
+// Authentication Module Routes (CONTRACTS.md Section 3)
+app.use('/auth', authRouter);
 
 // 404 Handler for unmatched routes
 app.use((_req, _res, next) => {
