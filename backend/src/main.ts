@@ -4,6 +4,9 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import authRouter from './modules/auth/auth.router';
 import customerRouter from './modules/customer/customer.router';
+import productRouter from './modules/product/product.router';
+import inventoryRouter from './modules/inventory/inventory.router';
+import challanRouter from './modules/challan/challan.router';
 import { errorHandler } from './middleware/error.middleware';
 import { NotFoundError } from './utils/errors';
 
@@ -35,6 +38,15 @@ app.use('/auth', authRouter);
 
 // Customer CRM Module Routes (CONTRACTS.md Section 4)
 app.use('/customers', customerRouter);
+
+// Product Catalog Module Routes (CONTRACTS.md Section 4)
+app.use('/products', productRouter);
+
+// Stock Movement Audit Log Routes (CONTRACTS.md Section 4)
+app.use('/stock-movements', inventoryRouter);
+
+// Sales Challan Module Routes (CONTRACTS.md Section 4)
+app.use('/challans', challanRouter);
 
 // 404 Handler for unmatched routes
 app.use((_req, _res, next) => {
