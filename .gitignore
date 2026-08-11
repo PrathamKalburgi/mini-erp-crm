@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Production build outputs
+dist/
+**/dist/
+build/
+**/build/
+
+# Environment files and secrets
+.env
+*.env
+!.env.example
+!**/.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.agent/
+skills-lock.json
+
+# Initial specification markdown files and docs folder
+ARCHITECTURE.md
+CONTRACTS.md
+IMPLEMENTATION_PLAN.md
+docs/
