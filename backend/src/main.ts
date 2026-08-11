@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import authRouter from './modules/auth/auth.router';
+import customerRouter from './modules/customer/customer.router';
 import { errorHandler } from './middleware/error.middleware';
 import { NotFoundError } from './utils/errors';
 
@@ -31,6 +32,9 @@ app.get('/health', (_req, res) => {
 
 // Authentication Module Routes (CONTRACTS.md Section 3)
 app.use('/auth', authRouter);
+
+// Customer CRM Module Routes (CONTRACTS.md Section 4)
+app.use('/customers', customerRouter);
 
 // 404 Handler for unmatched routes
 app.use((_req, _res, next) => {

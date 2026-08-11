@@ -235,6 +235,15 @@ async function main() {
   });
 
   console.log('[SEED] Seeded sample draft sales challan:', sampleChallan.challan_number);
+
+  // Sync PostgreSQL sequence counters for auto-increment IDs
+  const tables = ['users', 'customers', 'customer_follow_up_notes', 'products', 'stock_movements', 'sales_challans', 'sales_challan_items'];
+  for (const table of tables) {
+    await prisma.$executeRawUnsafe(
+      `SELECT setval(pg_get_serial_sequence('${table}', 'id'), COALESCE((SELECT MAX(id) FROM "${table}"), 1));`
+    );
+  }
+  console.log('[SEED] Synchronized auto-increment sequence counters.');
   console.log('[SEED] Database seeding completed successfully.');
 }
 
