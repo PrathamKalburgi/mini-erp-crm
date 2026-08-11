@@ -15,23 +15,28 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const corsOriginEnv = process.env.CORS_ORIGIN;
-const allowedOrigins = corsOriginEnv ? corsOriginEnv.split(',').map((o) => o.trim()) : ['http://localhost:5173', 'http://localhost:8080'];
+const allowedOrigins = corsOriginEnv
+  ? corsOriginEnv.split(',').map((o) => o.trim().replace(/\/+$/, ''))
+  : ['http://localhost:5173', 'http://localhost:8080'];
 
 app.use(helmet());
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+      // Normalize incoming origin by removing trailing slashes if present
+      const cleanOrigin = origin ? origin.replace(/\/+$/, '') : '';
+
       if (
         !origin ||
         !corsOriginEnv ||
         corsOriginEnv === '*' ||
-        allowedOrigins.includes(origin) ||
-        origin.endsWith('.vercel.app')
+        allowedOrigins.includes(cleanOrigin) ||
+        cleanOrigin.endsWith('.vercel.app')
       ) {
-        callback(null, true);
+        // Return the exact requesting origin (without trailing slash) to satisfy browser CORS
+        callback(null, origin || true);
       } else {
-        callback(null, true);
+        callback(null, origin || true);
       }
     },
     credentials: true,
