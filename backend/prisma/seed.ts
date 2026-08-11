@@ -243,7 +243,13 @@ async function main() {
       `SELECT setval(pg_get_serial_sequence('${table}', 'id'), COALESCE((SELECT MAX(id) FROM "${table}"), 1));`
     );
   }
-  console.log('[SEED] Synchronized auto-increment sequence counters.');
+
+  // Sync sales_challan_number_seq sequence so nextval does not conflict with seeded challan numbers
+  await prisma.$executeRawUnsafe(
+    `SELECT setval('sales_challan_number_seq', COALESCE((SELECT MAX(CAST(SUBSTRING(challan_number FROM 5) AS INTEGER)) FROM sales_challans), 1));`
+  );
+
+  console.log('[SEED] Synchronized auto-increment sequence counters and sales_challan_number_seq.');
   console.log('[SEED] Database seeding completed successfully.');
 }
 

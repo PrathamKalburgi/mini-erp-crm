@@ -37,7 +37,7 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - name: Install Backend Dependencies
-        run: cd backend && npm ci
+        run: cd backend && npm install
 
       - name: Generate Prisma Client
         run: cd backend && npx prisma generate
@@ -72,7 +72,7 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install Frontend Dependencies
-        run: cd frontend && npm ci
+        run: cd frontend && npm install
 
       - name: Build Frontend (Vite & TypeScript)
         run: cd frontend && npm run build
